@@ -1,0 +1,12 @@
+[Unit]
+Description=elastiprom
+After=network.target
+
+[Service]
+User=ubuntu
+EnvironmentFile=/usr/share/elastiprom/.env
+ExecStart=/usr/bin/java -jar /usr/share/elastiprom/elastiprom-0.0.1.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

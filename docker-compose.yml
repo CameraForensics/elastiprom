@@ -1,0 +1,14 @@
+version: '3'
+services:
+  bigsearch:
+    container_name: elastiprom
+    image: "elastiprom:latest"
+    ports:
+      - "8080:8080"
+    environment:
+      - LOGGING_LEVEL=${LOGGING_LEVEL}
+      - LOGGING_PATH=${LOGGING_LEVEL}
+      - ES_HOST=${ES_HOST}
+      - ES_PORT=${ES_PORT}
+      - ES_SCHEME=${ES_SCHEME}
+      - ES_AUTH=${ES_AUTH}

@@ -1,0 +1,18 @@
+[Unit]
+Description=elastiprom
+Requires=network.target
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=docker
+WorkingDirectory=/usr/share/elastiprom
+EnvironmentFile=/usr/share/elastiprom/.env
+ExecStart=/usr/bin/docker run --rm --name elastiprom --env-file /usr/share/elastiprom/.env -p 8080:8080 elastiprom:latest
+ExecStop=-/usr/bin/docker kill elastiprom
+Restart=on-failure
+RestartSec=1s
+
+[Install]
+WantedBy=default.target
