@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -39,6 +40,8 @@ public class MetricsController {
     private final NodeUsageGenerator nodeUsageGenerator = new NodeUsageGenerator();
     private final HttpMetricsGenerator httpMetricsGenerator = new HttpMetricsGenerator();
     private final ScriptsGenerator scriptsGenerator = new ScriptsGenerator();
+    private final NodeGenerator nodeGenerator = new NodeGenerator();
+    private final ShardsGenerator shardsGenerator = new ShardsGenerator();
 
     private Elasticsearch elasticsearch;
 
@@ -60,7 +63,9 @@ public class MetricsController {
                 .thenCombine(getClusterHealth(client), clusterHealthMetricsGenerator::generateMetrics)
                 .thenCombine(getClusterSettings(client), clusterStateMetricsGenerator::generateMetrics)
                 .thenCombine(getPendingTasks(client), pendingTasksMetricsGenerator::generateMetrics)
+                .thenCombine(getShardList(client), shardsGenerator::generateMetrics)
                 .thenCombine(getNodesUsage(client), this::generateNodeUsageMetrics)
+                .thenCombine(getNodeList(client), this::generateNodeListMetrics)
                 .thenApply(PrometheusFormatWriter::toString)
                 .thenApply(ResponseEntity::ok)
                 .exceptionally(handleGetMetricsFailure)
@@ -71,6 +76,7 @@ public class MetricsController {
     public CompletableFuture<ResponseEntity<String>> nodeStats() {
         CombinedClient client = elasticsearch.client();
         return createWriter(elasticsearch.getClusterData()).thenCombine(getNodeStats(client), this::generateNodeMetrics)
+                .thenCombine(getNodeList(client), this::generateNodeListMetrics)
                 .thenApply(PrometheusFormatWriter::toString)
                 .thenApply(ResponseEntity::ok)
                 .exceptionally(handleGetMetricsFailure)
@@ -133,6 +139,15 @@ public class MetricsController {
                 .value(1, "pluginVersion", "7.9.0", "es_version", Version.CURRENT.toString());
 
         return CompletableFuture.completedFuture(writer);
+    }
+
+    private PrometheusFormatWriter generateNodeListMetrics(PrometheusFormatWriter writer, List<Node> nodes) {
+        for (Node node : nodes){
+            log.debug("Found node stats: {}", node);
+            nodeGenerator.generateMetrics(writer, node, node.getName());
+        }
+
+        return writer;
     }
 
     private PrometheusFormatWriter generateNodeUsageMetrics(PrometheusFormatWriter writer, Map<String, Object> responseData) {

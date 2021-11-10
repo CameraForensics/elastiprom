@@ -29,17 +29,26 @@ public final class SingleValueWriter {
     }
 
     public SingleValueWriter longValue(Object data, Map<String, String> labels) {
+        if (data == null) {
+            data = "0";
+        }
         long value = Long.parseLong((String.valueOf(data)));
         valueWriter.writeValue(name, value, labels);
         return this;
     }
 
     public SingleValueWriter longValue(Object data, String...labels) {
+        if (data == null) {
+            data = "0";
+        }
         long value = Long.parseLong((String.valueOf(data)));
         return value(value, labels);
     }
 
     public SingleValueWriter doubleValue(Object data, String...labels) {
+        if (data == null) {
+            data = "0";
+        }
         double value = Double.parseDouble((String.valueOf(data)));
         return value(value, labels);
     }

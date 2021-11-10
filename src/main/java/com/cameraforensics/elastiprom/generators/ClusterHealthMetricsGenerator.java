@@ -5,6 +5,7 @@ import com.cameraforensics.elastiprom.writer.SingleValueWriter;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.cluster.settings.ClusterGetSettingsResponse;
 import org.elasticsearch.cluster.health.ClusterIndexHealth;
+import org.elasticsearch.cluster.health.ClusterShardHealth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

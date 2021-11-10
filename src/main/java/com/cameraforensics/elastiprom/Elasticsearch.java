@@ -49,7 +49,7 @@ public class Elasticsearch {
 
     @PostConstruct
     public void setup() {
-        log.info("Connecting to cluster at: {}://{}:{}", scheme, port, host);
+        log.info("Connecting to cluster at: {}://{}:{}", scheme, host, port);
         client = new CombinedClient(host, port, scheme, auth);
         CompletableFuture<Map<String, Object>> result = clusterData(client);
         try {

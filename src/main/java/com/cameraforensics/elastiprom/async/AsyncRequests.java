@@ -1,6 +1,7 @@
 package com.cameraforensics.elastiprom.async;
 
 import com.cameraforensics.elastiprom.CombinedClient;
+import com.cameraforensics.elastiprom.Node;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import org.elasticsearch.action.admin.cluster.settings.ClusterGetSettingsRespons
 import org.elasticsearch.client.RequestOptions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -22,6 +24,32 @@ public class AsyncRequests {
         return result.thenApply((response)-> {
             try {
                 return new ObjectMapper().readValue(response, new TypeReference<HashMap<String, Object>>() {});
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static CompletableFuture<List<Node>> getNodeList(final CombinedClient client) {
+        ResponseListenerAdapter result = new ResponseListenerAdapter();
+        client.nodeList(result.asResponseListener());
+
+        return result.thenApply((response)-> {
+            try {
+                return new ObjectMapper().readValue(response, new TypeReference<List<Node>>() {});
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public static CompletableFuture<List<Map<String, Object>>> getShardList(final CombinedClient client) {
+        ResponseListenerAdapter result = new ResponseListenerAdapter();
+        client.shardList(result.asResponseListener());
+
+        return result.thenApply((response)-> {
+            try {
+                return new ObjectMapper().readValue(response, new TypeReference<List<Map<String, Object>>>() {});
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

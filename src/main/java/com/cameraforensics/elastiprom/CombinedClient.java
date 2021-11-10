@@ -6,8 +6,11 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.*;
+import org.elasticsearch.client.cluster.RemoteInfoRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.websocket.ClientEndpointConfig;
 
 public class CombinedClient {
     private static final Logger log = LoggerFactory.getLogger(CombinedClient.class);
@@ -28,6 +31,22 @@ public class CombinedClient {
         this.port = port;
         this.scheme = scheme;
         this.auth = auth;
+    }
+
+    public void nodeList(final ResponseListener listener) {
+        RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
+        builder.addHeader("Accept", "application/json");
+        Request req = new Request("GET", "/_cat/nodes");
+        req.setOptions(builder.build());
+        getLowLevelClient().performRequestAsync(req, listener);
+    }
+
+    public void shardList(final ResponseListener listener) {
+        RequestOptions.Builder builder = RequestOptions.DEFAULT.toBuilder();
+        builder.addHeader("Accept", "application/json");
+        Request req = new Request("GET", "/_cat/shards");
+        req.setOptions(builder.build());
+        getLowLevelClient().performRequestAsync(req, listener);
     }
 
     public void nodeStats(final ResponseListener listener) {
